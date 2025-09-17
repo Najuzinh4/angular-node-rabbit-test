@@ -1,0 +1,112 @@
+<div class="orders">
+  <form [formGroup]="orderForm" (ngSubmit)="submit()" novalidate>
+    <h2>Novo pedido</h2>
+
+    <section class="form-section" formGroupName="customer">
+      <h3>Cliente</h3>
+      <div class="field">
+        <label for="customer-name">Nome</label>
+        <input id="customer-name" type="text" formControlName="name" placeholder="Maria da Silva" />
+        <small *ngIf="hasError('customer.name', 'required')">Informe o nome do cliente.</small>
+      </div>
+
+      <div class="field">
+        <label for="customer-email">E-mail</label>
+        <input
+          id="customer-email"
+          type="email"
+          formControlName="email"
+          placeholder="cliente@email.com"
+        />
+        <small *ngIf="hasError('customer.email', 'required')">Informe o e-mail do cliente.</small>
+        <small *ngIf="hasError('customer.email', 'email')">Informe um e-mail válido.</small>
+      </div>
+    </section>
+
+    <section class="form-section" formGroupName="product">
+      <h3>Produto</h3>
+      <div class="field">
+        <label for="product-name">Nome</label>
+        <input id="product-name" type="text" formControlName="name" placeholder="Produto" />
+        <small *ngIf="hasError('product.name', 'required')">Informe o nome do produto.</small>
+      </div>
+
+      <div class="field">
+        <label for="product-price">Preço</label>
+        <input
+          id="product-price"
+          type="number"
+          min="0.01"
+          step="0.01"
+          formControlName="price"
+          placeholder="0,00"
+        />
+        <small *ngIf="hasError('product.price', 'required')">Informe o preço do produto.</small>
+        <small *ngIf="hasError('product.price', 'min')">O preço deve ser maior que zero.</small>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Quantidade</h3>
+      <div class="field">
+        <label for="quantity">Itens</label>
+        <input id="quantity" type="number" min="1" formControlName="quantity" />
+        <small *ngIf="hasError('quantity', 'required')">Informe a quantidade.</small>
+        <small *ngIf="hasError('quantity', 'min')">A quantidade mínima é 1.</small>
+      </div>
+    </section>
+
+    <div class="order-summary">
+      <span>Total:</span>
+      <strong>{{ total() | currency: 'BRL':'symbol-narrow' }}</strong>
+    </div>
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Salvando...' : 'Cadastrar pedido' }}
+    </button>
+  </form>
+
+  <section class="orders-list">
+    <div class="list-header">
+      <h2>Pedidos cadastrados</h2>
+      <button type="button" class="refresh" (click)="loadOrders()" [disabled]="loadingOrders()">
+        Atualizar
+      </button>
+    </div>
+
+    <p *ngIf="loadingOrders()" class="helper">Carregando pedidos...</p>
+    <p *ngIf="!loadingOrders() && orders().length === 0" class="helper">
+      Nenhum pedido cadastrado até o momento.
+    </p>
+
+    <div *ngIf="orders().length > 0" class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Produto</th>
+            <th class="right">Quantidade</th>
+            <th class="right">Preço unitário</th>
+            <th class="right">Total</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders(); trackBy: trackById">
+            <td>
+              <strong>{{ order.customer.name }}</strong>
+              <small>{{ order.customer.email }}</small>
+            </td>
+            <td>{{ order.product.name }}</td>
+            <td class="right">{{ order.quantity }}</td>
+            <td class="right">{{ order.product.price | currency: 'BRL':'symbol-narrow' }}</td>
+            <td class="right">{{ order.total | currency: 'BRL':'symbol-narrow' }}</td>
+            <td>{{ order.createdAt | date: 'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p *ngIf="errorMessage()" class="error">{{ errorMessage() }}</p>
+</div>

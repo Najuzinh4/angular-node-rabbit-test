@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  backend:
+    build: ./backend
+    ports:
+      - '3000:3000'
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      RABBITMQ_QUEUE: orders_queue
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '4200:4200'
+    environment:
+      NG_CLI_ANALYTICS: 'false'
+    command: npm start -- --host 0.0.0.0 --port 4200
+    depends_on:
+      - backend
